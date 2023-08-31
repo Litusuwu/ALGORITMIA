@@ -1,16 +1,11 @@
 #include <iostream>
 using namespace std;
-
 void solve(){
     int N, P;
-    
     cin>>N>>P;
-
     int costo[N], ganancia[N], predecesores[N][3]{}, predecesor, maxGanancia=0 , answers[N]{};
     bool tiene[N]{};
-/////
-//    int gananciaTotal=0;
-
+//  lectura de datos
     for(int i = 0 ; i < N ; i ++){
         cin >> costo[i] >> ganancia [i];
         if(cin.get()!=' ') continue;
@@ -22,13 +17,12 @@ void solve(){
             }
         }
     }
-
-    //cout<<P<<endl;
+    //usamos un cromosoma ( es lo equivalente a 1<<N por secuencia de bits, segun el profe se puede usar en el lab)
     for(long long mask = 0 ; mask < (1<<N); mask++){
-
+    //declaras variables que se reinician por cada combinacion
         int ans[N]{}, gananciaTotal=0, costoTotal=0;
-        bool flag = true, estaono[N]{}, flagCosto=false;
-
+        bool flag = true, estaono[N]{};
+    //si hay un 1 en la combinacion, actualizas las siguientes variables
         for(int bit = 0 ; bit < N ; bit ++){
             if((1<<bit)&mask){
                 ans[bit]        =  bit+1;
@@ -36,11 +30,6 @@ void solve(){
                 costoTotal     += costo[bit];
                 estaono[bit]    = true;
             }
-
-            if(costoTotal <= P){
-                flagCosto=true;
-            }
-            /////
             for(int i = 0 ; i < N ; i++){ //comprobar predecesores
                 if(ans[i]==0){  
                     continue;
@@ -48,13 +37,10 @@ void solve(){
                 else{
                     if(tiene[i] and ans[i]!=0){
                         //evaluar si tiene o no 
-                        //cout<<"a";
                         for(int d = 0 ; d < 3 ; d++){
                             predecesor=predecesores[i][d];
-                            //cout<<predecesor;
                             if(predecesor!=0){
                                 if(!estaono[predecesor-1]){
-                                    
                                     flag=false;
                                 }
                             }
@@ -64,15 +50,11 @@ void solve(){
             }
             
             if((costoTotal<=P) and flag and (gananciaTotal>=maxGanancia)){
-                //cout<<costoTotal<<endl;
-                //cout<<"a";
                 for(int i = 0 ; i < N ; i ++){
                     answers[i]=ans[i];
                 }
                 maxGanancia=gananciaTotal;
             }
-            
-            
         }
     }
 
@@ -83,7 +65,6 @@ void solve(){
     }
     cout<<endl<<"Con ganancia total de : "<<maxGanancia;
 }
-
 int main(){
     solve();
     
