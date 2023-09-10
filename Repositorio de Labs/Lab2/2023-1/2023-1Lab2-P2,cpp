@@ -1,0 +1,125 @@
+#include <iostream>
+using namespace std;
+void imprimirMatriz(int destino[][6][4]){
+	for(int i = 0 ; i<5 ; i ++){
+		cout<<"Pila  "<<i+1<<" : ";
+		for(int j = 0 ; j < 4 ; j++){
+			if(destino[0][i][j]==0){
+				cout<<"-------- ";
+			}
+			else{
+				cout<<destino[0][i][j]<<"-"<<destino[1][i][j]<<"  ";
+			}
+		}
+		cout<<endl;
+	}
+}
+void ubicarMayor(int origen[][7][5], int p, int ind, int &ans, int &val){
+	if(ind==-1)return;
+	if(ind==p-1){
+		ans=ind;
+		val=origen[0][ind][0];
+	}
+	
+	if(origen[0][ind][0] < val and origen[0][ind][0]!=0){
+		val=origen[0][ind][0];
+		ans=ind;
+	}
+	ubicarMayor(origen, p, ind-1, ans, val);
+}
+void contarElementos(int origen[][7][5],int c, int index,int index1,int &counter){
+	if(index==-1)return;
+	if(origen[0][index1][index]>0)counter++;
+	contarElementos(origen, c, index-1, index1, counter);
+}
+void pasarAPuerta(int origen[][7][5],int destino[][6][4],int m,int nAlmacen,int index1,int indexPuerta){
+	if(indexPuerta==m)return;
+	if(origen[0][index1][indexPuerta]>0){
+		destino[0][nAlmacen][indexPuerta]=origen[0][index1][indexPuerta];
+		destino[1][nAlmacen][indexPuerta]=origen[1][index1][indexPuerta];
+		origen[0][index1][indexPuerta]=0;
+		origen[1][index1][indexPuerta]=0;
+	}
+	pasarAPuerta(origen,destino,  m, nAlmacen, index1, indexPuerta+1);
+}
+void vaciarAlmacen(int origen[][7][5],int c, int index,int index1){
+	if(index==-1)return;
+	origen[0][index1][index]=0;
+	vaciarAlmacen(origen, c, index-1, index1);
+}
+void barricasA(int destino[][6][4], int indexInicio, int indexDestino, int indexCargaInicio, int indexCargaDestino){
+	if(indexCargaInicio==-1)return;
+	destino[0][indexDestino][indexCargaDestino]=destino[0][indexInicio][indexCargaInicio];
+	destino[1][indexDestino][indexCargaDestino]=destino[1][indexInicio][indexCargaInicio];
+	destino[0][indexInicio][indexCargaInicio]=0;
+	destino[1][indexInicio][indexCargaInicio]=0;
+	//con lo siguiente se verifica que es paso a paso XD (no copiar)
+	//imprimirMatriz(destino);
+	//cout<<"------------------------------"<<endl;
+	barricasA(destino,  indexInicio, indexDestino, indexCargaInicio-1, indexCargaDestino+1);
+}
+void recursividad(int origen[][7][5], int destino[][6][4],int nAlmacen,int c,int p,int m,int n, int &AlmacenesLlenados){
+	int index1=0, counter=0, indexCounter;
+	int val1;
+	if(AlmacenesLlenados==0){
+		return;
+	}
+	ubicarMayor(origen, p, p-1 , index1, val1);
+	contarElementos(origen, c, c-1, index1, counter);
+	//cout<<val1;
+	//cout<<"->>"<<counter;
+	if(counter<=m){
+		pasarAPuerta(origen,destino, m, nAlmacen, index1, 0);
+		indexCounter=counter-1;
+		barricasA(destino,  nAlmacen, 0, indexCounter, 0);
+		barricasA(destino,  0, AlmacenesLlenados, indexCounter, 0);
+		AlmacenesLlenados--;
+	}
+	else{
+		vaciarAlmacen(origen, c, c-1, index1);
+	}
+	//imprimirMatriz(destino);	
+	
+	recursividad(origen, destino, nAlmacen, c, p, m, n, AlmacenesLlenados);
+
+	//return;
+}
+
+int main(){
+	int c=5, p = 7, m=4, n=5;
+	int nAlmacen=n, AlmacenesLlenados=n-1;
+	int origen[2][7][5]{ {{2010, 2010, 2010, 0, 0},
+						  {2021, 2021, 2021, 2021, 0},
+						  {2018, 2018, 2018, 2018, 2018},
+						  {2015, 2015, 2015, 0, 0},
+						  {2020, 2020, 0, 0, 0},
+						  {2019, 2019, 2019, 2019, 0},
+						  {2022, 2022, 0, 0, 0}}, //0
+
+						 {{100, 50, 50, 0, 0},
+						  {100, 100, 50, 50, 0},
+						  {50, 50, 25, 25, 25},
+						  {100, 50, 25, 0, 0},
+						  {100, 100, 0, 0, 0},
+						  {100, 50, 50, 25, 0},
+						  {100, 100, 0, 0, 0}}};//1
+
+	int destino[2][6][4]{{    {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0}},
+
+						   {  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0},
+							  {0, 0, 0, 0}}};
+	//imprimirMatriz(destino);						  
+	recursividad(origen, destino, nAlmacen, c, p, m, n, AlmacenesLlenados);
+	cout<<endl<<"Respuesta:------------------------------"<<endl;
+	imprimirMatriz(destino);	
+	return 0;
+}
